@@ -4,8 +4,8 @@ Demo de dos contenedores comunicándose: una app Flask que cuenta visitas en Red
 
 ## Cómo correrlo
 
-\`\`\`bash
+```bash
 docker compose up --build
-\`\`\`
+```
 
 Luego abre http://localhost:5000
