@@ -1,12 +1,17 @@
 services:
-  web:
-    build: .
+  jenkins:
+    build:
+      context: .
+      dockerfile: Dockerfile.jenkins
+    container_name: jenkins
+    restart: unless-stopped
+    user: root                       # necesario para usar el Docker del host vía el socket
     ports:
-      - "5000:5000"
-    depends_on:
-      - redis
-    environment:
-      - REDIS_HOST=redis
+      - "8080:8080"                  # interfaz web de Jenkins
+      - "50000:50000"                # comunicación con agentes (opcional)
+    volumes:
+      - jenkins_home:/var/jenkins_home              # persiste config, jobs, plugins
+      - /var/run/docker.sock:/var/run/docker.sock   # construir imágenes con el Docker del host
 
-  redis:
-    image: redis:7-alpine
+volumes:
+  jenkins_home:
