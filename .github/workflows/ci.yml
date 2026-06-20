@@ -38,3 +38,23 @@ jobs:
           REDIS_HOST: localhost
         working-directory: app
         run: pytest -v
+
+    desplegar: # Trabajo 2: publica la página
+      needs: pruebas # Solo se ejecuta si el trabajo "pruebas" terminó bien
+      if: github.ref == 'refs/heads/main' # Y solo en la rama main (no en Pull Requests)
+      runs-on: ubuntu-latest
+      environment:
+        name: github-pages
+        url: ${{ steps.deployment.outputs.page_url }}
+      steps:
+        - name: Descargar el código
+          uses: actions/checkout@v4
+        - name: Configurar Pages
+          uses: actions/configure-pages@v5
+        - name: Empaquetar la página como artefacto
+          uses: actions/upload-pages-artifact@v4
+          with:
+            path: ./public
+        - name: Desplegar a GitHub Pages
+          id: deployment
+        uses: actions/deploy-pages@v4        
