@@ -4,26 +4,26 @@ on:
   push:            
   pull_request:    
 
-      jobs:
-                    pruebas:
-                      runs-on: ubuntu-latest
+jobs:
+  pruebas:
+    runs-on: ubuntu-latest
 
-                      services:
-                        redis:
-                          image: redis:7
-                          ports:
-                            - 6379:6379
-                          options: >-
-                            --health-cmd "redis-cli ping"
-                            --health-interval 10s
-                            --health-timeout 5s
-                            --health-retries 5
+    services:
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
 
-                      steps:
-                        - name: Descargar el código
-                          uses: actions/checkout@v4
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
 
-                        - name: Instalar Python
+      - name: Instalar Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
