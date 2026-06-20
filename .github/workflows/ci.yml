@@ -1,13 +1,17 @@
-name: CI - Pruebas automáticas
+name: CI/CD - Pruebas y despliegue
 
 on: # Eventos que disparan el flujo
   push: # En cada push a cualquier rama
   pull_request: # Al abrir o actualizar un Pull Request
 
-jobs:
-  pruebas: # Único trabajo del flujo
-    runs-on: ubuntu-latest # Máquina virtual Linux proporcionada por GitHub
+permissions: # Permisos que necesita el despliegue a Pages
+  contents: read
+  pages: write
+  id-token: write
 
+jobs:
+  pruebas: # Trabajo 1: ejecuta las pruebas
+    runs-on: ubuntu-latest # Máquina virtual Linux proporcionada por GitHub
     services: # Contenedores auxiliares para el job
       redis: # La aplicación necesita Redis
         image: redis:7 # Imagen oficial de Redis 7
@@ -18,7 +22,6 @@ jobs:
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
-
     steps:
       - name: Descargar el código # 1) Clona el repositorio en la máquina virtual
         uses: actions/checkout@v4
@@ -39,22 +42,22 @@ jobs:
         working-directory: app # Carpeta de trabajo: app/ (donde está app.py)
         run: pytest -v # Si una prueba falla, el job se marca en rojo
 
-    desplegar: # Trabajo 2: publica la página
-      needs: pruebas # Solo se ejecuta si el trabajo "pruebas" terminó bien
-      if: github.ref == 'refs/heads/main' # Y solo en la rama main (no en Pull Requests)
-      runs-on: ubuntu-latest
-      environment:
-        name: github-pages
-        url: ${{ steps.deployment.outputs.page_url }}
-      steps:
-        - name: Descargar el código
-          uses: actions/checkout@v4
-        - name: Configurar Pages
-          uses: actions/configure-pages@v5
-        - name: Empaquetar la página como artefacto
-          uses: actions/upload-pages-artifact@v4
-          with:
-            path: ./public
-        - name: Desplegar a GitHub Pages
-          id: deployment
+  desplegar: # Trabajo 2: publica la página
+    needs: pruebas # Solo se ejecuta si el trabajo "pruebas" terminó bien
+    if: github.ref == 'refs/heads/main' # Y solo en la rama main (no en Pull Requests)
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Descargar el código
+        uses: actions/checkout@v4
+      - name: Configurar Pages
+        uses: actions/configure-pages@v5
+      - name: Empaquetar la página como artefacto
+        uses: actions/upload-pages-artifact@v4
+        with:
+          path: ./public
+      - name: Desplegar a GitHub Pages
+        id: deployment
         uses: actions/deploy-pages@v4
