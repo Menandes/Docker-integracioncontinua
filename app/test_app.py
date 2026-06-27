@@ -17,3 +17,10 @@ def test_pagina_cuenta_visitas():
     respuesta = cliente.get('/')
     texto = respuesta.get_data(as_text=True)
     assert 'visitado' in texto
+
+
+def test_saludo_presente():
+    cliente = app.test_client()
+    respuesta = cliente.get('/')
+    texto = respuesta.get_data(as_text=True)
+    assert '¡Hola!' in texto, f"Se esperaba '¡Hola!' en la respuesta, pero se obtuvo: {texto!r}"
